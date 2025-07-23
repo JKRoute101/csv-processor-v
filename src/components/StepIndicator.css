@@ -1,0 +1,17 @@
+.step-indicator {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.step {
+  flex: 1;
+  text-align: center;
+  padding: 1rem;
+  border-bottom: 3px solid #ccc;
+}
+
+.step.active {
+  font-weight: bold;
+  border-color: #007bff;
+}
