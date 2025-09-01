@@ -2,6 +2,8 @@
   display: flex;
   justify-content: space-between;
   margin-bottom: 2rem;
+  background-color: aliceblue;
+  border-radius: 5px;
 }
 
 .step {
@@ -13,5 +15,5 @@
 
 .step.active {
   font-weight: bold;
-  border-color: #007bff;
+  border-color: #59b5ce;
 }

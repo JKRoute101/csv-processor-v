@@ -1,3 +1,8 @@
+.upload-and-button {
+  display: flex;
+  flex-direction: column;
+}
+
 .upload-container {
   text-align: center;
 }
@@ -28,16 +33,61 @@
 }
 
 .validate-button {
-  margin-top: 1rem;
+  max-width: 15rem;
+  justify-self: center;
+  margin-top: 0.25rem;
   padding: 0.75rem 1.5rem;
   border-radius: 5px;
-  background-color: #007bff;
+  background-color: #59b5ce;
   color: white;
   border: none;
   font-size: 1rem;
   cursor: pointer;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.file-uploaded {
+  width: 160px;
+  height: 160px;
+  margin: 0 auto;
+  background-color: #fafafa;
+  border: 2px dashed #ccc;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
 }
 
 .validate-button:hover {
-  background-color: #0056b3;
+  background-color: #387282;
+}
+
+.choose-new-button {
+  justify-self: center;
+  margin-top: 1rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 5px;
+  background-color: white;
+  color: #274a53;
+  /*border: 1px solid #274a53;*/
+  font-size: 0.75rem;
+  cursor: pointer;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 2rem;
+  border: none;
+}
+
+.choose-new-button:hover {
+  text-decoration: underline;
+}
+
+.success-message {
+  color: green;
+  font-weight: bold;
+  margin-top: 10px;
 }
