@@ -1,0 +1,58 @@
+.config-api-container {
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  padding: 2rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.config-api-container h2 {
+  margin-bottom: 1rem;
+  color: #274a53;
+}
+
+.config-api-container label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.config-api-container input {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+.config-api-container button {
+  padding: 0.75rem 1.5rem;
+  background-color: #59b5ce;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.config-api-container button:hover {
+  background-color: #387282;
+}
+
+.config-api-container .error {
+  color: red;
+  margin-top: 1rem;
+  font-weight: bold;
+}
+
+.config-api-container select {
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+}

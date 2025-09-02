@@ -22,31 +22,63 @@ const FileUpload = () => {
     }
   };
 
-  const handleValidate = () => {
-    if (!file) {
-      setError("No file selected.");
-      return;
+  const validateCSV = (csvData) => {
+  const requiredFields = ["personCode", "absenceName", "startDate", "endDate"];
+  const errors = [];
+
+  csvData.forEach((row, index) => {
+    requiredFields.forEach((field) => {
+      if (!row[field] || row[field].trim() === "") {
+        errors.push(`Row ${index + 1}: Missing value for "${field}".`);
+      }
+    });
+
+    // Date format check (YYYY-MM-DD)
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(row.startDate)) {
+      errors.push(`Row ${index + 1}: Invalid start date format.`);
     }
 
-    Papa.parse(file, {
-      header: true,
-      skipEmptyLines: true,
-      complete: function (results) {
-        if (results.errors.length > 0) {
-          setError(`CSV Parsing Error: ${results.errors[0].message}`);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(row.endDate)) {
+      errors.push(`Row ${index + 1}: Invalid end date format.`);
+    }
+  });
+
+  return errors;
+};
+
+
+  const handleValidate = () => {
+  if (!file) {
+    setError("No file selected.");
+    return;
+  }
+
+  Papa.parse(file, {
+    header: true,
+    skipEmptyLines: true,
+    complete: function (results) {
+      if (results.errors.length > 0) {
+        setError(`CSV Parsing Error: ${results.errors[0].message}`);
+        setParsedData([]);
+      } else {
+        const validationErrors = validateCSV(results.data);
+        if (validationErrors.length > 0) {
+          setError(validationErrors.join("\n"));
           setParsedData([]);
         } else {
           setParsedData(results.data);
           setError("");
-          handleUpload(results.data); // Upload after parsing
+          handleUpload(results.data);
         }
-      },
-    });
-  };
+      }
+    },
+  });
+};
+
 
   const handleUpload = async (data) => {
     try {
-      const token = "YOUR_AUTH_TOKEN"; // Replace with actual token logic
+      const token = "YOUR_AUTH_TOKEN"; 
       const response = await fetch(
         "https://mtusce03.teleopticloud.com/wfm/holidays",
         {
