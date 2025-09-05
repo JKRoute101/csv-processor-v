@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./ConfigureAPI.css";
 
-const ConfigAPI = ({ onBUSelected }) => {
+const ConfigAPI = ({ onBUSelected, onTokenChange, onBaseURLChange }) => {
   const [baseURL, setBaseURL] = useState("");
   const [token, setToken] = useState("");
   const [businessUnits, setBusinessUnits] = useState([]);
@@ -47,6 +47,16 @@ const ConfigAPI = ({ onBUSelected }) => {
     onBUSelected(e.target.value);
   };
 
+  const handleBaseURLChange = (e) => {
+    setBaseURL(e.target.value);
+    onBaseURLChange(e.target.value);
+  };
+
+  const handleTokenChange = (e) => {
+    setToken(e.target.value);
+    onTokenChange(e.target.value);
+  };
+
   return (
     <div className="config-api-container">
       <h2>Configure Calabrio API</h2>
@@ -55,7 +65,7 @@ const ConfigAPI = ({ onBUSelected }) => {
         <input
           type="text"
           value={baseURL}
-          onChange={(e) => setBaseURL(e.target.value)}
+          onChange={handleBaseURLChange}
           placeholder="e.g. mtukso01-30m"
         />
       </label>
@@ -64,7 +74,7 @@ const ConfigAPI = ({ onBUSelected }) => {
         <input
           type="text"
           value={token}
-          onChange={(e) => setToken(e.target.value)}
+          onChange={handleTokenChange}
           placeholder="Paste your token here"
         />
       </label>

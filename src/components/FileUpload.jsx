@@ -3,7 +3,8 @@ import "./FileUpload.css";
 import Papa from "papaparse";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCloudUploadAlt } from "@fortawesome/free-solid-svg-icons";
-const FileUpload = () => {
+
+const FileUpload = ({ token, baseURL, buId, onValidationSuccess }) => {
   const [file, setFile] = useState(null);
   const [error, setError] = useState("");
   const [uploadSuccess, setUploadSuccess] = useState(false);
@@ -23,64 +24,73 @@ const FileUpload = () => {
   };
 
   const validateCSV = (csvData) => {
-  const requiredFields = ["personCode", "absenceName", "startDate", "endDate"];
-  const errors = [];
+    const requiredFields = [
+      "person_code",
+      "absence_name",
+      "start_date",
+      "end_date",
+    ];
+    const errors = [];
 
-  csvData.forEach((row, index) => {
-    requiredFields.forEach((field) => {
-      if (!row[field] || row[field].trim() === "") {
-        errors.push(`Row ${index + 1}: Missing value for "${field}".`);
+    csvData.forEach((row, index) => {
+      requiredFields.forEach((field) => {
+        if (!row[field] || row[field].trim() === "") {
+          errors.push(`Row ${index + 1}: Missing value for "${field}".`);
+        }
+      });
+
+      // Date format check (YYYY-MM-DD)
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(row.startDate)) {
+        errors.push(`Row ${index + 1}: Invalid start date format.`);
+      }
+
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(row.endDate)) {
+        errors.push(`Row ${index + 1}: Invalid end date format.`);
       }
     });
 
-    // Date format check (YYYY-MM-DD)
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(row.startDate)) {
-      errors.push(`Row ${index + 1}: Invalid start date format.`);
-    }
-
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(row.endDate)) {
-      errors.push(`Row ${index + 1}: Invalid end date format.`);
-    }
-  });
-
-  return errors;
-};
-
+    return errors;
+  };
 
   const handleValidate = () => {
-  if (!file) {
-    setError("No file selected.");
-    return;
-  }
+    if (!file) {
+      setError("No file selected.");
+      return;
+    }
 
-  Papa.parse(file, {
-    header: true,
-    skipEmptyLines: true,
-    complete: function (results) {
-      if (results.errors.length > 0) {
-        setError(`CSV Parsing Error: ${results.errors[0].message}`);
-        setParsedData([]);
-      } else {
-        const validationErrors = validateCSV(results.data);
-        if (validationErrors.length > 0) {
-          setError(validationErrors.join("\n"));
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: function (results) {
+        if (results.errors.length > 0) {
+          setError(`CSV Parsing Error: ${results.errors[0].message}`);
           setParsedData([]);
         } else {
-          setParsedData(results.data);
-          setError("");
-          handleUpload(results.data);
-        }
-      }
-    },
-  });
-};
+          const validationErrors = validateCSV(results.data);
 
+          console.log("Parsed data:", results.data);
+          console.log("Validation errors:", validationErrors);
+
+          if (validationErrors.length > 0) {
+            setError(validationErrors.join("\n"));
+            setParsedData([]);
+          } else {
+            setParsedData(results.data);
+            setError("");
+            console.log("Validation passed, calling onValidationSuccess");
+            handleUpload(results.data);
+            onValidationSuccess();
+          }
+        }
+      },
+    });
+  };
 
   const handleUpload = async (data) => {
     try {
-      const token = "YOUR_AUTH_TOKEN"; 
+      const token = "YOUR_AUTH_TOKEN";
       const response = await fetch(
-        "https://mtusce03.teleopticloud.com/wfm/holidays",
+        `https://${baseURL}.teleopticloud.com/wfm/holidays`,
         {
           method: "POST",
           headers: {
@@ -114,12 +124,10 @@ const FileUpload = () => {
                 color="#59b5ce"
               />
             </div>
-
             <p>Upload CSV File</p>
             <p className="instruction">
               Drag and drop or click to select a file
             </p>
-
             <input
               id="file-upload"
               type="file"
@@ -142,14 +150,13 @@ const FileUpload = () => {
       <button className="validate-button" onClick={handleValidate}>
         Validate and Continue
       </button>
-    </div>
 
-    {uploadResult && (
-    <div className="success-message">
-    Upload successful! {JSON.stringify(uploadResult)}
+      {uploadResult && (
+        <div className="success-message">
+          Upload successful! {JSON.stringify(uploadResult)}
+        </div>
+      )}
     </div>
-)}
-
   );
 };
 
