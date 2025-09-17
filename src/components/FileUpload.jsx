@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import "./FileUpload.css";
 import Papa from "papaparse";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -13,14 +13,34 @@ const FileUpload = ({ token, baseURL, buId, onValidationSuccess }) => {
 
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
-    if (selectedFile && selectedFile.name.endsWith(".csv")) {
-      setFile(selectedFile);
-      setError("");
-      setUploadSuccess(true);
-    } else {
-      setError("Please upload a valid CSV file.");
+    if (!selectedFile) {
+      setError("Please select a file to upload");
+      setFile(null);
       setUploadSuccess(false);
+      return;
     }
+
+    if (!selectedFile.name.endsWith(".csv")) {
+      setError("Please upload a CSV file");
+      setFile(null);
+      setUploadSuccess(false);
+      return;
+    }
+
+    setFile(selectedFile);
+    setError("");
+    setUploadSuccess(true);
+  };
+
+  const convertDate = (dateStr) => {
+    const match = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (match) {
+      const [_, month, day, year] = match;
+      const paddedMonth = month.padStart(2, '0');
+      const paddedDay = day.padStart(2, '0');
+      return `${year}-${paddedMonth}-${paddedDay}`;
+    }
+    return dateStr;
   };
 
   const validateCSV = (csvData) => {
@@ -31,23 +51,34 @@ const FileUpload = ({ token, baseURL, buId, onValidationSuccess }) => {
       "end_date",
     ];
     const errors = [];
+    const convertedData = csvData.map(row => ({
+      ...row,
+      start_date: convertDate(row.start_date),
+      end_date: convertDate(row.end_date)
+    }));
 
-    csvData.forEach((row, index) => {
+    convertedData.forEach((row, index) => {
       requiredFields.forEach((field) => {
         if (!row[field] || row[field].trim() === "") {
-          errors.push(`Row ${index + 1}: Missing value for "${field}".`);
+          errors.push(`Row ${index + 1} is missing the ${field.replace(/_/g, ' ')}`);
         }
       });
 
-      // Date format check (YYYY-MM-DD)
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(row.startDate)) {
-        errors.push(`Row ${index + 1}: Invalid start date format.`);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(row.start_date)) {
+        errors.push(`Row ${index + 1}: Start date must be in the format MM/DD/YYYY`);
       }
 
-      if (!/^\d{4}-\d{2}-\d{2}$/.test(row.endDate)) {
-        errors.push(`Row ${index + 1}: Invalid end date format.`);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(row.end_date)) {
+        errors.push(`Row ${index + 1}: End date must be in the format MM/DD/YYYY`);
       }
     });
+
+    if (errors.length === 0) {
+      csvData.forEach((row, index) => {
+        row.start_date = convertedData[index].start_date;
+        row.end_date = convertedData[index].end_date;
+      });
+    }
 
     return errors;
   };
@@ -63,7 +94,7 @@ const FileUpload = ({ token, baseURL, buId, onValidationSuccess }) => {
       skipEmptyLines: true,
       complete: function (results) {
         if (results.errors.length > 0) {
-          setError(`CSV Parsing Error: ${results.errors[0].message}`);
+          setError('Invalid file format. Please make sure your CSV file is properly formatted and contains the required columns.');
           setParsedData([]);
         } else {
           const validationErrors = validateCSV(results.data);
@@ -77,8 +108,8 @@ const FileUpload = ({ token, baseURL, buId, onValidationSuccess }) => {
           } else {
             setParsedData(results.data);
             setError("");
-            console.log("Validation passed, calling onValidationSuccess");
-            handleUpload(results.data);
+            console.log("Validation passed");
+            setParsedData(results.data);
             onValidationSuccess();
           }
         }
@@ -88,7 +119,10 @@ const FileUpload = ({ token, baseURL, buId, onValidationSuccess }) => {
 
   const handleUpload = async (data) => {
     try {
-      const token = "YOUR_AUTH_TOKEN";
+      if (!token || !baseURL) {
+        console.log("Token or baseURL not configured yet");
+        return;
+      }
       const response = await fetch(
         `https://${baseURL}.teleopticloud.com/wfm/holidays`,
         {
@@ -110,12 +144,15 @@ const FileUpload = ({ token, baseURL, buId, onValidationSuccess }) => {
 
   const clearFile = () => {
     setFile(null);
+    setError("");
+    setUploadSuccess(false);
+    setParsedData([]);
   };
 
   return (
     <div className="upload-and-button">
-      {!file ? (
-        <div className="upload-container">
+      <div className="upload-container">
+        {!file ? (
           <label htmlFor="file-upload" className="upload-box">
             <div className="upload-icon">
               <FontAwesomeIcon
@@ -136,16 +173,16 @@ const FileUpload = ({ token, baseURL, buId, onValidationSuccess }) => {
               hidden
             />
           </label>
-          {error && <p className="error">{error}</p>}
-        </div>
-      ) : (
-        <div>
-          <p className="file-uploaded">File uploaded ✓</p>
-          <button className="choose-new-button" onClick={clearFile}>
-            choose new file?
-          </button>
-        </div>
-      )}
+        ) : (
+          <div>
+            <p className="file-uploaded">File uploaded ✓</p>
+            <button className="choose-new-button" onClick={clearFile}>
+              Different File?
+            </button>
+          </div>
+        )}
+        {error && <p className="error">{error}</p>}
+      </div>
 
       <button className="validate-button" onClick={handleValidate}>
         Validate and Continue
