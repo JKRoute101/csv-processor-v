@@ -10,9 +10,11 @@
     "@fortawesome/fontawesome-svg-core": "^7.0.0",
     "@fortawesome/free-solid-svg-icons": "^7.0.0",
     "@fortawesome/react-fontawesome": "^0.2.3",
+    "axios": "^1.12.2",
     "papaparse": "^5.5.3",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-papaparse": "^4.4.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.0.0",
