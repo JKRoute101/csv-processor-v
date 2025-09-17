@@ -1,13 +1,24 @@
 import React from 'react'
 import './StepIndicator.css'
 
-function StepIndicator() {
+function StepIndicator({ currentStep }) {
+  const steps = [
+    { number: 1, label: 'Upload CSV' },
+    { number: 2, label: 'Configure API' },
+    { number: 3, label: 'Process Data' },
+    { number: 4, label: 'Results' }
+  ];
+
   return (
     <div className="step-indicator">
-      <div className="step active">1<br />Upload CSV</div>
-      <div className="step">2<br />Configure API</div>
-      <div className="step">3<br />Process Data</div>
-      <div className="step">4<br />Results</div>
+      {steps.map((step) => (
+        <div 
+          key={step.number}
+          className={`step ${currentStep === step.number ? 'active' : ''}`}
+        >
+          {step.number}<br />{step.label}
+        </div>
+      ))}
     </div>
   )
 }
